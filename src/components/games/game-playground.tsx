@@ -2,12 +2,10 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import confetti from "@hiseb/confetti";
-import { useDragAndDrop } from "@formkit/drag-and-drop/react";
-import type { Difficulty } from "@/lib/constants";
 import type { GameDefinition } from "@/features/games/types";
 import { useGameSession } from "@/features/games/useGameSession";
+import type { Difficulty } from "@/lib/constants";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const randomInt = (max: number) => Math.floor(Math.random() * max);
 const shuffle = <T,>(list: T[]) => [...list].sort(() => Math.random() - 0.5);
@@ -19,16 +17,16 @@ const difficultyLabel: Record<Difficulty, string> = {
 };
 
 const parejasAssets = [
-  "/images/games/parejas/carta-1.jpg",
-  "/images/games/parejas/carta-2.jpg",
-  "/images/games/parejas/carta-3.jpg",
-  "/images/games/parejas/carta-4.jpg",
-  "/images/games/parejas/carta-5.jpg",
-  "/images/games/parejas/carta-6.jpg",
-  "/images/games/parejas/carta-7.jpg",
-  "/images/games/parejas/carta-8.jpg",
-  "/images/games/parejas/carta-9.jpg",
-  "/images/games/parejas/carta-10.jpg",
+  "/images/games/parejas/carta-1.png",
+  "/images/games/parejas/carta-2.png",
+  "/images/games/parejas/carta-3.png",
+  "/images/games/parejas/carta-4.png",
+  "/images/games/parejas/carta-5.png",
+  "/images/games/parejas/carta-6.png",
+  "/images/games/parejas/carta-7.png",
+  "/images/games/parejas/carta-8.png",
+  "/images/games/parejas/carta-9.png",
+  "/images/games/parejas/carta-10.png",
 ];
 
 const intrusoAssets = {
@@ -44,26 +42,6 @@ const stroopColors = [
   { key: "morado", text: "MORADO", className: "text-purple-600", bgClass: "bg-purple-500" },
   { key: "naranja", text: "NARANJA", className: "text-orange-600", bgClass: "bg-orange-500" },
 ] as const;
-
-
-const AssetOrFallback = ({
-  src,
-  alt,
-  fallback,
-  className,
-  failed,
-  onFail,
-}: {
-  src: string;
-  alt: string;
-  fallback: string;
-  className?: string;
-  failed: boolean;
-  onFail: () => void;
-}) => {
-  if (failed) return <span className="text-3xl">{fallback}</span>;
-  return <img src={src} alt={alt} className={className} onError={onFail} />;
-};
 
 const GameShell = ({
   game,
@@ -149,12 +127,12 @@ const ClockFace = ({ hour, minute }: { hour: number; minute: number }) => {
         );
       })}
       <div
-        className="absolute bottom-1/2 left-1/2 h-20 w-2 -translate-x-1/2 origin-bottom rounded-full bg-slate-900"
-        style={{ transform: `translateX(-50%) rotate(${hourAngle}deg)` }}
+        className="absolute left-1/2 top-1/2 h-20 w-2 -translate-x-1/2 -translate-y-full origin-bottom rounded-full bg-slate-900"
+        style={{ transform: `translate(-50%, -100%) rotate(${hourAngle}deg)` }}
       />
       <div
-        className="absolute bottom-1/2 left-1/2 h-28 w-1.5 -translate-x-1/2 origin-bottom rounded-full bg-sky-600"
-        style={{ transform: `translateX(-50%) rotate(${minuteAngle}deg)` }}
+        className="absolute left-1/2 top-1/2 h-28 w-1.5 -translate-x-1/2 -translate-y-full origin-bottom rounded-full bg-sky-600"
+        style={{ transform: `translate(-50%, -100%) rotate(${minuteAngle}deg)` }}
       />
       <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-slate-800" />
     </div>
@@ -222,7 +200,6 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
   const [startedAt, setStartedAt] = useState(0);
   const [selected, setSelected] = useState<number[]>([]);
   const [cards, setCards] = useState<{ id: number; value: string; open: boolean; matched: boolean; image: string }[]>([]);
-  const [failedAssets, setFailedAssets] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const emojis = ["🍎", "🚲", "🌙", "🌻", "🎹", "🏠", "📚", "🧩", "☕", "🕰️"];
@@ -292,15 +269,9 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
             className="group min-h-24 overflow-hidden rounded-2xl border-2 border-slate-300 bg-white text-3xl font-bold shadow-sm transition hover:scale-[1.02] hover:shadow"
           >
             {card.open || card.matched ? (
-              <div className="flex h-full min-h-24 items-center justify-center gap-2 bg-slate-50 p-2">
-                <AssetOrFallback
-                  src={card.image}
-                  alt={`Carta ${card.value}`}
-                  fallback={card.value}
-                  className="h-14 w-14 rounded-lg object-cover"
-                  failed={Boolean(failedAssets[card.id])}
-                  onFail={() => setFailedAssets((prev) => ({ ...prev, [card.id]: true }))}
-                />
+              <div className="flex h-full min-h-24 flex-col items-center justify-center gap-2 bg-slate-50 p-2">
+                <div className="h-10 w-10 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${card.image})` }} />
+                <span>{card.value}</span>
               </div>
             ) : (
               <div className="flex h-full min-h-24 items-center justify-center bg-gradient-to-br from-sky-200 to-indigo-300 text-white">?</div>
@@ -355,7 +326,7 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
     <>
       <div className="mt-6 rounded-xl border p-4">
         <p className="text-lg font-semibold">Secuencia</p>
-        <div className="mt-3 flex flex-wrap gap-3 text-3xl">{revealedSeq.map((item, index) => <span key={`${item}-${index}`} className="rounded-lg bg-slate-100 px-3 py-2">{item}</span>)}</div>
+        <div className="mt-3 flex flex-wrap gap-3 text-3xl">{question.seq.map((item, index) => <span key={`${item}-${index}`} className="rounded-lg bg-slate-100 px-3 py-2">{item}</span>)}</div>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3 md:grid-cols-6">{question.options.map((option) => <button key={option} onClick={() => handleAnswer(option)} className="min-h-14 rounded-xl border-2 border-slate-300 text-2xl font-bold hover:bg-slate-100">{option}</button>)}</div>
       <ScorePanel feedback={feedback} suggestion={suggestion} />
@@ -540,21 +511,8 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
       <div className="mt-4 grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
         {board.map((item, idx) => (
           <button key={`${item.icon}-${idx}`} onClick={() => handlePick(idx)} className="min-h-16 rounded-xl border-2 border-slate-300 bg-white text-3xl shadow-sm transition hover:scale-105 hover:bg-slate-100">
-            <div className="mx-auto flex h-10 w-10 items-center justify-center">
-              <AssetOrFallback
-                src={item.isOdd ? intrusoAssets.odd : intrusoAssets.base}
-                alt="Elemento"
-                fallback={item.icon}
-                className="h-8 w-8 rounded object-cover"
-                failed={Boolean(failedImage[item.isOdd ? intrusoAssets.odd : intrusoAssets.base])}
-                onFail={() =>
-                  setFailedImage((prev) => ({
-                    ...prev,
-                    [item.isOdd ? intrusoAssets.odd : intrusoAssets.base]: true,
-                  }))
-                }
-              />
-            </div>
+            <div className="mx-auto h-8 w-8 bg-cover bg-center" style={{ backgroundImage: `url(${item.isOdd ? intrusoAssets.odd : intrusoAssets.base})` }} />
+            <span>{item.icon}</span>
           </button>
         ))}
       </div>
@@ -604,7 +562,6 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     let index = 0;
     timerRef.current = window.setInterval(() => {
       setActivePad(sequence[index]);
-      setActiveSequenceIndex(index);
       setTimeout(() => setActivePad(null), 380);
       index += 1;
       if (index >= sequence.length && timerRef.current) {
@@ -640,35 +597,18 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
   return (
     <>
       <p className="mt-6">Observa la secuencia de luces y repítela en el mismo orden.</p>
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,320px)_1fr] lg:items-start">
-        <div className="grid grid-cols-2 gap-3 md:max-w-sm">
-          {pads.map((pad) => (
-            <button
-              key={pad.id}
-              onClick={() => handlePad(pad.id)}
-              className={`min-h-24 rounded-2xl text-lg font-bold text-white shadow-lg transition ${pad.className} ${
-                activePad === pad.id ? "scale-105 ring-4 ring-white/90 brightness-125" : "opacity-90 hover:opacity-100"
-              }`}
-            >
-              {pad.label}
-            </button>
-          ))}
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-          <p className="text-sm font-semibold text-slate-600">Secuencia</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {sequence.map((step, index) => (
-              <span
-                key={`${step}-${index}`}
-                className={`rounded-lg px-3 py-1.5 text-sm font-semibold text-white ${pads[step].className} ${
-                  activeSequenceIndex === index ? "scale-105 ring-2 ring-slate-900" : "opacity-70"
-                }`}
-              >
-                {pads[step].label}
-              </span>
-            ))}
-          </div>
-        </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 md:max-w-sm">
+        {pads.map((pad) => (
+          <button
+            key={pad.id}
+            onClick={() => handlePad(pad.id)}
+            className={`min-h-24 rounded-2xl text-lg font-bold text-white shadow-lg transition ${pad.className} ${
+              activePad === pad.id ? "scale-105 ring-4 ring-white/90 brightness-125" : "opacity-90 hover:opacity-100"
+            }`}
+          >
+            {pad.label}
+          </button>
+        ))}
       </div>
       {showing && <p className="mt-2 text-sm font-semibold text-sky-700">Mostrando secuencia...</p>}
       <button onClick={startGame} className="mt-4 rounded-lg border px-4 py-2 font-semibold">Reiniciar secuencia</button>
@@ -684,7 +624,7 @@ const RutinasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
   const [attempts, setAttempts] = useState(0);
   const [startedAt, setStartedAt] = useState(0);
   const [target, setTarget] = useState<string[]>([]);
-  const [parent, order, setOrder] = useDragAndDrop<HTMLDivElement, string>([]);
+  const [draggedStep, setDraggedStep] = useState<string | null>(null);
 
   useEffect(() => {
     const routine = ["Desayunar", "Ducharse", "Paseo", "Comida", "Siesta", "Merienda", "Llamada familiar", "Cena"];
@@ -698,6 +638,19 @@ const RutinasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setStartedAt(Date.now());
   }, [difficulty, setOrder]);
 
+  const moveStep = (fromStep: string, toStep: string) => {
+    if (fromStep === toStep) return;
+    setOrder((prev) => {
+      const from = prev.indexOf(fromStep);
+      const to = prev.indexOf(toStep);
+      if (from < 0 || to < 0) return prev;
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
+  };
+
   const validateOrder = () => {
     const tries = attempts + 1;
     setAttempts(tries);
@@ -709,20 +662,25 @@ const RutinasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
       return;
     }
     setFeedback("¡Rutina ordenada correctamente!");
-    confetti();
     setSuggestion(save({ score: target.length, attempts: tries, startedAt, won: true, accuracy }));
   };
 
   return (
     <>
       <p className="mt-6">Ordena las actividades del día con arrastrar y soltar.</p>
-      <div ref={parent} className="mt-4 space-y-3">
+      <div className="mt-4 space-y-3">
         {order.map((step, index) => (
           <div
             key={step}
             draggable
-            data-dnd-index={index}
-            className="flex cursor-grab items-center justify-between rounded-xl border bg-white p-3 shadow-sm transition active:cursor-grabbing"
+            onDragStart={() => setDraggedStep(step)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={() => {
+              if (!draggedStep) return;
+              moveStep(draggedStep, step);
+              setDraggedStep(null);
+            }}
+            className={`flex items-center justify-between rounded-xl border p-3 shadow-sm transition ${draggedStep === step ? "border-sky-500 bg-sky-50" : "bg-white"}`}
           >
             <span className="text-lg font-semibold">{index + 1}. {step}</span>
             <span className="rounded-lg bg-slate-100 px-3 py-1 text-sm text-slate-600">↕ mover</span>
