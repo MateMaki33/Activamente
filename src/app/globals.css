@@ -7,11 +7,6 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 18px;
-  color: #0f172a;
-  background:
-    radial-gradient(circle at 0% 0%, #e0f2fe 0%, transparent 35%),
-    radial-gradient(circle at 100% 100%, #fae8ff 0%, transparent 30%),
-    #f8fafc;
 }
 
 button,
@@ -24,16 +19,12 @@ a {
   color: #fff;
 }
 
-.high-contrast .bg-white,
-.high-contrast .bg-slate-50,
-.high-contrast .bg-sky-50 {
+.high-contrast .bg-white {
   background: #111 !important;
 }
 
 .high-contrast .text-slate-700,
-.high-contrast .text-slate-800,
-.high-contrast .text-slate-900,
-.high-contrast .text-sky-950 {
+.high-contrast .text-slate-900 {
   color: #fff !important;
 }
 
