@@ -171,6 +171,7 @@ const RelojGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
       return;
     }
     setFeedback("¡Muy bien! Hora correcta.");
+    confetti();
     setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
   };
 
@@ -217,6 +218,7 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setFeedback("");
     setSuggestion("");
     setStartedAt(Date.now());
+    setFailedAssets({});
   }, [difficulty]);
 
   const handleCard = (id: number) => {
@@ -251,6 +253,7 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     if (cards.length && cards.every((card) => card.matched)) {
       const score = cards.length / 2;
       setFeedback("¡Excelente memoria! Has encontrado todas las parejas.");
+      confetti();
       setSuggestion(save({ score, attempts: Math.max(attempts, 1), startedAt, won: true, accuracy: Math.round((score / Math.max(attempts, 1)) * 100) }));
     }
   }, [cards, attempts, startedAt, save]);
@@ -288,6 +291,7 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
   const [attempts, setAttempts] = useState(0);
   const [startedAt, setStartedAt] = useState(0);
   const [question, setQuestion] = useState<{ seq: string[]; answer: string; options: string[] }>({ seq: [], answer: "", options: [] });
+  const [revealedSeq, setRevealedSeq] = useState<string[]>([]);
 
   useEffect(() => {
     const bank =
@@ -297,6 +301,7 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
           ? { seq: ["🟥", "🟨", "🟨", "🟥", "🟨", "?"], answer: "🟨", options: ["🟨", "🟥", "🟦", "🟩"] }
           : { seq: ["1", "2", "3", "1", "2", "3", "1", "?"], answer: "2", options: ["1", "2", "3", "4", "5", "6"] };
     setQuestion({ ...bank, options: shuffle(bank.options) });
+    setRevealedSeq(bank.seq);
     setFeedback("");
     setSuggestion("");
     setAttempts(0);
@@ -312,6 +317,8 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
       return;
     }
     setFeedback("¡Patrón correcto!");
+    setRevealedSeq((prev) => prev.map((item) => (item === "?" ? question.answer : item)));
+    confetti();
     setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
   };
 
@@ -369,6 +376,7 @@ const ColoresGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setAttempts(tries);
     if (key === prompt.ink) {
       setFeedback("¡Correcto! Has elegido el color de la tinta.");
+      confetti();
       setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
     } else {
       setFeedback("Recuerda: importa el color visual del texto.");
@@ -428,6 +436,7 @@ const EncajaGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Di
   useEffect(() => {
     if (pieces.length && pieces.every((piece) => piece.placed)) {
       setFeedback("¡Figura completa! Excelente orientación espacial.");
+      confetti();
       setSuggestion(save({ score: pieces.length, attempts: Math.max(attempts, 1), startedAt, won: true }));
     }
   }, [pieces, attempts, startedAt, save]);
@@ -453,7 +462,7 @@ const EncajaGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Di
       <p className="mt-6">Selecciona una pieza y luego pulsa su silueta correspondiente.</p>
       <div className="mt-4 grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border p-4"><p className="font-semibold">Piezas</p><div className="mt-3 flex flex-wrap gap-3">{pieces.map((piece) => <button key={piece.id} onClick={() => setActivePiece(piece.id)} className={`min-h-14 min-w-14 rounded-xl border-2 text-3xl ${activePiece === piece.id ? "border-sky-500" : "border-slate-300"} ${piece.placed ? "opacity-40" : ""}`} style={{ transform: `rotate(${piece.angle}deg)` }}>{piece.shape}</button>)}</div>{rotationEnabled && <button onClick={() => setPieces((prev) => prev.map((piece) => (piece.id === activePiece ? { ...piece, angle: (piece.angle + 90) % 360 } : piece)))} className="mt-4 rounded-lg border px-4 py-2 font-semibold">Rotar 90°</button>}</div>
-        <div className="rounded-xl border p-4"><p className="font-semibold">Siluetas</p><div className="mt-3 grid grid-cols-3 gap-3">{pieces.map((piece) => <button key={`target-${piece.id}`} onClick={() => placePiece(piece.id)} className="min-h-16 rounded-xl border-2 border-dashed border-slate-400 text-3xl">{piece.placed ? piece.shape : "◌"}</button>)}</div></div>
+        <div className="rounded-xl border p-4"><p className="font-semibold">Siluetas</p><div className="mt-3 grid grid-cols-3 gap-3">{pieces.map((piece) => <button key={`target-${piece.id}`} onClick={() => placePiece(piece.id)} className={`min-h-16 rounded-xl border-2 border-dashed text-3xl ${piece.placed ? "border-emerald-500 bg-emerald-50" : "border-slate-400 bg-slate-50 text-slate-400"}`}>{piece.shape}</button>)}</div></div>
       </div>
       <ScorePanel feedback={feedback} suggestion={suggestion} />
     </>
@@ -468,6 +477,7 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
   const [startedAt, setStartedAt] = useState(0);
   const [board, setBoard] = useState<{ isOdd: boolean; icon: string }[]>([]);
   const [odd, setOdd] = useState(0);
+  const [failedImage, setFailedImage] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const total = difficulty === "facil" ? 9 : difficulty === "media" ? 16 : 25;
@@ -478,6 +488,7 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setFeedback("");
     setSuggestion("");
     setStartedAt(Date.now());
+    setFailedImage({});
   }, [difficulty]);
 
   const cols = Math.sqrt(board.length);
@@ -490,6 +501,7 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
       return;
     }
     setFeedback("¡Lo encontraste!");
+    confetti();
     setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
   };
 
@@ -519,6 +531,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
   const [userSequence, setUserSequence] = useState<number[]>([]);
   const [activePad, setActivePad] = useState<number | null>(null);
   const [showing, setShowing] = useState(false);
+  const [activeSequenceIndex, setActiveSequenceIndex] = useState<number>(-1);
   const timerRef = useRef<number | null>(null);
 
   const pads = [
@@ -536,6 +549,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     setFeedback("");
     setSuggestion("");
     setStartedAt(Date.now());
+    setActiveSequenceIndex(-1);
   }, [difficulty]);
 
   useEffect(() => {
@@ -553,6 +567,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
       if (index >= sequence.length && timerRef.current) {
         clearInterval(timerRef.current);
         setShowing(false);
+        setActiveSequenceIndex(-1);
       }
     }, 700);
     return () => {
@@ -564,6 +579,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     if (showing) return;
     const next = [...userSequence, id];
     setUserSequence(next);
+    setActiveSequenceIndex(next.length - 1);
     const tries = attempts + 1;
     setAttempts(tries);
     if (next[next.length - 1] !== sequence[next.length - 1]) {
@@ -573,6 +589,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     }
     if (next.length === sequence.length) {
       setFeedback("¡Perfecto! Secuencia completa.");
+      confetti();
       setSuggestion(save({ score: sequence.length, attempts: tries, startedAt, won: true }));
     }
   };
@@ -606,7 +623,6 @@ const RutinasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
   const [suggestion, setSuggestion] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [startedAt, setStartedAt] = useState(0);
-  const [order, setOrder] = useState<string[]>([]);
   const [target, setTarget] = useState<string[]>([]);
   const [draggedStep, setDraggedStep] = useState<string | null>(null);
 
@@ -620,7 +636,7 @@ const RutinasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setFeedback("");
     setSuggestion("");
     setStartedAt(Date.now());
-  }, [difficulty]);
+  }, [difficulty, setOrder]);
 
   const moveStep = (fromStep: string, toStep: string) => {
     if (fromStep === toStep) return;
