@@ -2,10 +2,10 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Difficulty } from "@/lib/constants";
 import type { GameDefinition } from "@/features/games/types";
 import { useGameSession } from "@/features/games/useGameSession";
+import type { Difficulty } from "@/lib/constants";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const randomInt = (max: number) => Math.floor(Math.random() * max);
 const shuffle = <T,>(list: T[]) => [...list].sort(() => Math.random() - 0.5);
@@ -17,16 +17,16 @@ const difficultyLabel: Record<Difficulty, string> = {
 };
 
 const parejasAssets = [
-  "/images/games/parejas/carta-1.jpg",
-  "/images/games/parejas/carta-2.jpg",
-  "/images/games/parejas/carta-3.jpg",
-  "/images/games/parejas/carta-4.jpg",
-  "/images/games/parejas/carta-5.jpg",
-  "/images/games/parejas/carta-6.jpg",
-  "/images/games/parejas/carta-7.jpg",
-  "/images/games/parejas/carta-8.jpg",
-  "/images/games/parejas/carta-9.jpg",
-  "/images/games/parejas/carta-10.jpg",
+  "/images/games/parejas/carta-1.png",
+  "/images/games/parejas/carta-2.png",
+  "/images/games/parejas/carta-3.png",
+  "/images/games/parejas/carta-4.png",
+  "/images/games/parejas/carta-5.png",
+  "/images/games/parejas/carta-6.png",
+  "/images/games/parejas/carta-7.png",
+  "/images/games/parejas/carta-8.png",
+  "/images/games/parejas/carta-9.png",
+  "/images/games/parejas/carta-10.png",
 ];
 
 const intrusoAssets = {
