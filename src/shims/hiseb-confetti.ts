@@ -1,4 +1,4 @@
-const confetti = () => {
+const confetti = (p0: { position: { x: number; y: number; }; count: number; size: number; velocity: number; fade: boolean; }) => {
   if (typeof window === "undefined") return;
   const total = 18;
   for (let i = 0; i < total; i += 1) {

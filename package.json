@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@formkit/drag-and-drop": "^0.5.3",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@hiseb/confetti": "^2.1.0",
     "next": "16.1.6",
     "react": "19.2.3",
