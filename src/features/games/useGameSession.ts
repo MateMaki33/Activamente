@@ -16,22 +16,26 @@ export const useGameSession = () => {
     const nextUnlocked = evaluateAchievements(nextStats, unlocked);
     storage.set("achievements", nextUnlocked);
 
-    const perf = storage.get<Record<string, number[]>>("performance", {});
-    const current = perf[result.gameSlug] ?? [];
-    const value = Math.round(result.accuracy);
-    const updated = [...current, value].slice(-3);
-    perf[result.gameSlug] = updated;
-    storage.set("performance", perf);
+    const recentForGame = nextStats.recentResults
+      .filter((item) => item.gameSlug === result.gameSlug)
+      .slice(0, 5);
+
+    const winRate = recentForGame.length
+      ? recentForGame.filter((item) => item.won).length / recentForGame.length
+      : 0;
+    const avgAccuracy = recentForGame.length
+      ? recentForGame.reduce((sum, item) => sum + item.accuracy, 0) / recentForGame.length
+      : 0;
 
     return {
       suggestion:
-        updated.length === 3
-          ? updated.every((x) => x > 85)
+        recentForGame.length >= 4
+          ? winRate >= 0.85 && avgAccuracy >= 80
             ? "Puedes probar una dificultad mayor."
-            : updated.every((x) => x < 50)
+            : winRate <= 0.35 && avgAccuracy <= 55
               ? "Tal vez te convenga bajar una dificultad."
               : ""
-          : ""
+          : "",
     };
   };
 
