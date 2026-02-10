@@ -60,40 +60,32 @@ export const GamePlayground = ({ game }: { game: GameDefinition }) => {
   };
 
   return (
-    <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-white to-sky-50 p-6 shadow-sm">
-      <h2 className="text-3xl font-extrabold text-slate-900">{game.title}</h2>
-      <p className="mt-2 text-lg text-slate-800">{game.instructions}</p>
+    <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <h2 className="text-3xl font-bold">{game.title}</h2>
+      <p className="mt-2 text-slate-700">{game.instructions}</p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {game.difficulties.map((level) => (
-          <button
-            key={level}
-            onClick={() => setDifficulty(level)}
-            className={`rounded-lg border px-4 py-2 font-bold capitalize ${difficulty === level ? "border-sky-800 bg-sky-800 text-white" : "border-slate-300 bg-white text-slate-900"}`}
-          >
+          <button key={level} onClick={() => setDifficulty(level)} className={`rounded-lg border px-4 py-2 ${difficulty === level ? "bg-sky-700 text-white" : "bg-white"}`}>
             {level}
           </button>
         ))}
-        <button onClick={(event) => startRound(event.timeStamp)} className="rounded-lg bg-emerald-700 px-5 py-3 font-bold text-white">
+        <button onClick={(event) => startRound(event.timeStamp)} className="rounded-lg bg-emerald-600 px-5 py-3 font-semibold text-white">
           Iniciar ronda
         </button>
       </div>
 
-      {prompt && <p className="mt-6 text-2xl font-bold text-indigo-900">{prompt}</p>}
+      {prompt && <p className="mt-6 text-2xl font-semibold">{prompt}</p>}
 
       <div className="mt-4 grid grid-cols-3 gap-3 md:grid-cols-4">
         {options.map((option) => (
-          <button
-            key={option}
-            onClick={(event) => handleChoose(option, event.timeStamp)}
-            className="min-h-14 rounded-xl border-2 border-indigo-300 bg-white text-xl font-extrabold text-indigo-900 hover:bg-indigo-50"
-          >
+          <button key={option} onClick={(event) => handleChoose(option, event.timeStamp)} className="min-h-14 rounded-xl border-2 border-slate-300 text-xl font-bold hover:bg-slate-100">
             {option}
           </button>
         ))}
       </div>
 
-      {feedback && <p className="mt-5 rounded-lg bg-indigo-100 p-3 font-bold text-indigo-900">{feedback}</p>}
-      {suggestion && <p className="mt-3 rounded-lg bg-amber-100 p-3 font-semibold text-amber-900">{suggestion}</p>}
+      {feedback && <p className="mt-5 rounded-lg bg-slate-100 p-3 font-semibold">{feedback}</p>}
+      {suggestion && <p className="mt-3 rounded-lg bg-amber-100 p-3">{suggestion}</p>}
     </section>
   );
 };

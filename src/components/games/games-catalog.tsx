@@ -21,7 +21,7 @@ export const GamesCatalog = ({ games }: { games: GameDefinition[] }) => {
           <button
             key={category}
             onClick={() => setFilter(category)}
-            className={`rounded-lg border px-4 py-2 font-bold transition ${filter === category ? "border-sky-800 bg-sky-800 text-white" : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100"}`}
+            className={`rounded-lg border px-4 py-2 font-semibold ${filter === category ? "bg-sky-700 text-white" : "bg-white"}`}
           >
             {category}
           </button>
