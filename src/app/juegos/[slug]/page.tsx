@@ -1,16 +1,29 @@
-import { notFound } from "next/navigation";
+import { GamePlayground } from "@/components/games/game-playground";
 import { GAME_BY_SLUG } from "@/content/games";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { GamePlayground } from "@/components/games/game-playground";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const game = GAME_BY_SLUG[params.slug];
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await params;
+
+  const game = GAME_BY_SLUG[slug];
   if (!game) return {};
-  return buildMetadata(game.title, game.shortDescription, [game.category, "estimulación cognitiva"]);
+
+  return buildMetadata(game.title, game.shortDescription, [
+    game.category,
+    "estimulación cognitiva",
+  ]);
 }
 
-export default function GamePage({ params }: { params: { slug: string } }) {
-  const game = GAME_BY_SLUG[params.slug];
+export default async function GamePage(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;
+
+  const game = GAME_BY_SLUG[slug];
   if (!game) return notFound();
 
   return (
