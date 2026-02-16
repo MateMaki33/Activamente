@@ -73,6 +73,27 @@ const stroopColors = [
   { key: "naranja", text: "NARANJA", className: "text-orange-600", bgClass: "bg-orange-500" },
 ] as const;
 
+const patternBank: Record<Difficulty, { seq: string[]; answer: string; options: string[] }[]> = {
+  facil: [
+    { seq: ["🔵", "🟢", "🔵", "🟢", "?"], answer: "🔵", options: ["🔵", "🟢", "🟣"] },
+    { seq: ["⭐", "🌙", "⭐", "🌙", "?"], answer: "⭐", options: ["⭐", "🌙", "☀️"] },
+    { seq: ["🍎", "🍎", "🍐", "🍎", "🍎", "?"], answer: "🍐", options: ["🍎", "🍐", "🍊"] },
+    { seq: ["2", "4", "2", "4", "?"], answer: "2", options: ["1", "2", "4"] },
+  ],
+  media: [
+    { seq: ["🟥", "🟨", "🟨", "🟥", "🟨", "?"], answer: "🟨", options: ["🟨", "🟥", "🟦", "🟩"] },
+    { seq: ["A", "B", "C", "A", "B", "?"], answer: "C", options: ["A", "B", "C", "D"] },
+    { seq: ["3", "6", "9", "3", "6", "?"], answer: "9", options: ["6", "8", "9", "12"] },
+    { seq: ["🔺", "🔺", "🔷", "🔺", "🔺", "?"], answer: "🔷", options: ["🔺", "🔷", "🔶", "⭕"] },
+  ],
+  dificil: [
+    { seq: ["1", "2", "3", "1", "2", "3", "1", "?"], answer: "2", options: ["1", "2", "3", "4", "5", "6"] },
+    { seq: ["2", "4", "8", "16", "?"], answer: "32", options: ["18", "24", "32", "64", "30", "34"] },
+    { seq: ["A", "C", "E", "G", "?"], answer: "I", options: ["H", "I", "J", "K", "L", "M"] },
+    { seq: ["🔴", "🟢", "🔵", "🟢", "🔴", "🟢", "?"], answer: "🔵", options: ["🔴", "🟢", "🔵", "🟡", "🟣", "⚫"] },
+  ],
+};
+
 const useSoundEffects = () => {
   const { settings } = useSettings();
   const cacheRef = useRef<Record<string, HTMLAudioElement>>({});
@@ -541,6 +562,9 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
   const [suggestion, setSuggestion] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [startedAt, setStartedAt] = useState(0);
+  const [isResolving, setIsResolving] = useState(false);
+  const nextRoundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousQuestionIndexRef = useRef<number | null>(null);
 
   const [question, setQuestion] = useState<{ seq: string[]; answer: string; options: string[] }>({
     seq: [],
@@ -549,17 +573,23 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
   });
 
   const newRound = useCallback(() => {
-    const bank =
-      difficulty === "facil"
-        ? { seq: ["🔵", "🟢", "🔵", "🟢", "?"], answer: "🔵", options: ["🔵", "🟢", "🟣"] }
-        : difficulty === "media"
-          ? { seq: ["🟥", "🟨", "🟨", "🟥", "🟨", "?"], answer: "🟨", options: ["🟨", "🟥", "🟦", "🟩"] }
-          : { seq: ["1", "2", "3", "1", "2", "3", "1", "?"], answer: "2", options: ["1", "2", "3", "4", "5", "6"] };
+    const bank = patternBank[difficulty];
+    const randomIndex = randomInt(bank.length);
+    const nextIndex =
+      bank.length > 1 && randomIndex === previousQuestionIndexRef.current ? (randomIndex + 1) % bank.length : randomIndex;
+    const nextQuestion = bank[nextIndex];
 
-    setQuestion({ ...bank, options: shuffle(bank.options) });
+    if (nextRoundTimerRef.current) {
+      clearTimeout(nextRoundTimerRef.current);
+      nextRoundTimerRef.current = null;
+    }
+
+    setQuestion({ ...nextQuestion, options: shuffle(nextQuestion.options) });
+    previousQuestionIndexRef.current = nextIndex;
     setFeedback("");
     setSuggestion("");
     setAttempts(0);
+    setIsResolving(false);
     setStartedAt(Date.now());
   }, [difficulty]);
 
@@ -567,7 +597,19 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
     newRound();
   }, [difficulty, newRound]);
 
+  useEffect(
+    () => () => {
+      if (nextRoundTimerRef.current) {
+        clearTimeout(nextRoundTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const handleAnswer = (value: string) => {
+    if (isResolving) return;
+
+    setIsResolving(true);
     const tries = attempts + 1;
     setAttempts(tries);
 
@@ -575,6 +617,9 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
       playSound("wobble.wav");
       setFeedback("No encaja. Mira el patrón otra vez.");
       setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
+      nextRoundTimerRef.current = setTimeout(() => {
+        newRound();
+      }, 1200);
       return;
     }
 
@@ -582,6 +627,9 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
     setFeedback("¡Correcto! Patrón clavado.");
     fireConfetti({ y: 0.5, count: 150 });
     setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
+    nextRoundTimerRef.current = setTimeout(() => {
+      newRound();
+    }, 1200);
   };
 
   return (
@@ -606,6 +654,7 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
           <button
             key={option}
             onClick={() => handleAnswer(option)}
+            disabled={isResolving}
             className="min-h-14 rounded-2xl border-2 border-slate-300 bg-white text-2xl font-black shadow-sm transition hover:bg-slate-50 active:scale-[0.99]"
           >
             {option}
