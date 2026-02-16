@@ -1,4 +1,4 @@
-export const APP_NAME = "ActivaMente";
+export const APP_NAME = "Senobi";
 export const APP_CLAIM = "Juegos sencillos para mantener la mente activa.";
 export const APP_DESCRIPTION =
   "Entrena memoria, atención y orientación con ejercicios visuales y fáciles de usar, pensados para personas mayores.";

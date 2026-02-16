@@ -20,8 +20,7 @@ const textSizeClass: Record<SettingsState["textSize"], string> = {
 const readInitialSettings = (): SettingsState => {
   if (typeof window === "undefined") return defaultSettings;
   const stored = storage.get<SettingsState>("settings", defaultSettings);
-  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  return { ...stored, animations: stored.animations && !prefersReduced };
+  return { ...defaultSettings, ...stored };
 };
 
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
@@ -30,9 +29,15 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     storage.set("settings", settings);
     document.documentElement.classList.toggle("high-contrast", settings.highContrast);
-    document.documentElement.classList.toggle("motion-reduce", !settings.animations);
     document.body.classList.remove("text-base", "text-lg", "text-xl");
     document.body.classList.add(textSizeClass[settings.textSize]);
+
+    const scaleMap: Record<SettingsState["textSize"], string> = {
+      normal: "100%",
+      grande: "112.5%",
+      "muy-grande": "125%",
+    };
+    document.documentElement.style.fontSize = scaleMap[settings.textSize];
   }, [settings]);
 
   const value = useMemo(

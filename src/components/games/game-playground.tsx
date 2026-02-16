@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import type { GameDefinition } from "@/features/games/types";
+import { useSettings } from "@/components/layout/settings-provider";
 import { useGameSession } from "@/features/games/useGameSession";
 import type { Difficulty } from "@/lib/constants";
 import {
@@ -71,6 +72,29 @@ const stroopColors = [
   { key: "morado", text: "MORADO", className: "text-purple-600", bgClass: "bg-purple-500" },
   { key: "naranja", text: "NARANJA", className: "text-orange-600", bgClass: "bg-orange-500" },
 ] as const;
+
+const useSoundEffects = () => {
+  const { settings } = useSettings();
+  const cacheRef = useRef<Record<string, HTMLAudioElement>>({});
+
+  return useCallback(
+    (soundFile: string) => {
+      if (typeof window === "undefined" || !settings.sounds) return;
+
+      let audio = cacheRef.current[soundFile];
+      if (!audio) {
+        audio = new Audio(`/sounds/${soundFile}`);
+        cacheRef.current[soundFile] = audio;
+      }
+
+      audio.currentTime = 0;
+      void audio.play().catch(() => {
+        // Ignoramos bloqueos de autoplay del navegador.
+      });
+    },
+    [settings.sounds],
+  );
+};
 
 const fireConfetti = (opts?: { y?: number; count?: number }) => {
   if (typeof window === "undefined") return;
@@ -218,6 +242,7 @@ const ClockFace = ({ hour, minute }: { hour: number; minute: number }) => {
 
 const RelojGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -261,11 +286,13 @@ const RelojGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     const correct = Math.min(diff, 720 - diff) <= tolerance;
 
     if (!correct) {
+      playSound("wobble.wav");
       setFeedback("Casi. Ajusta un poco más las manecillas.");
       setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
       return;
     }
 
+    playSound("coin_4.wav");
     setFeedback("¡Perfecto! Hora correcta.");
     fireConfetti({ y: 0.5, count: 170 });
     setLocked(true);
@@ -353,6 +380,7 @@ type PairCard = {
 
 const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -402,6 +430,7 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     const opened = cards.map((c) => (c.id === id ? { ...c, open: true } : c));
     const nextSelected = [...selected, id];
 
+    playSound("card_draw_3.wav");
     setCards(opened);
     setSelected(nextSelected);
 
@@ -506,6 +535,7 @@ const ParejasGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
 
 const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -542,11 +572,13 @@ const PatronesGame = ({ game, difficulty }: { game: GameDefinition; difficulty: 
     setAttempts(tries);
 
     if (value !== question.answer) {
+      playSound("wobble.wav");
       setFeedback("No encaja. Mira el patrón otra vez.");
       setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
       return;
     }
 
+    playSound("coin_4.wav");
     setFeedback("¡Correcto! Patrón clavado.");
     fireConfetti({ y: 0.5, count: 150 });
     setSuggestion(save({ score: 1, attempts: tries, startedAt, won: true }));
@@ -601,6 +633,7 @@ type ColorKey = (typeof stroopColors)[number]["key"];
 
 const ColoresGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -688,9 +721,11 @@ const ColoresGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     const isCorrect = key === prompt.ink;
 
     if (isCorrect) {
+      playSound("coin_4.wav");
       setCorrect((c) => c + 1);
       setFeedback("✅ Correcto");
     } else {
+      playSound("wobble.wav");
       setMisses((m) => m + 1);
       setFeedback("❌ Era el color de la tinta");
     }
@@ -759,6 +794,7 @@ const ColoresGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
 
 const EncajaGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -811,11 +847,13 @@ const EncajaGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Di
     const correct = targetId === activePiece && rotationOk;
 
     if (correct) {
+      playSound("coin_4.wav");
       setPieces((prev) => prev.map((p) => (p.id === activePiece ? { ...p, placed: true } : p)));
       setFeedback("✅ Encaja perfecto.");
       return;
     }
 
+    playSound("wobble.wav");
     setFeedback(rotationEnabled ? "No encaja. Prueba otra silueta o rota." : "No encaja. Prueba otra silueta.");
     setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
   };
@@ -892,6 +930,7 @@ const EncajaGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Di
 
 const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -935,11 +974,13 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
     setAttempts(tries);
 
     if (index !== odd) {
+      playSound("wobble.wav");
       setFeedback("No. Busca el que cambia. 👀");
       setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
       return;
     }
 
+    playSound("coin_4.wav");
     setFeedback("¡Encontrado! 🔥");
     fireConfetti({ y: 0.5, count: 180 });
     setLocked(true);
@@ -995,6 +1036,7 @@ const IntrusoGame = ({ game, difficulty }: { game: GameDefinition; difficulty: D
 
 const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Difficulty }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -1014,6 +1056,10 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
     { id: 2, label: "Rojo", className: "bg-red-500" },
     { id: 3, label: "Amarillo", className: "bg-yellow-400" },
   ];
+
+  const playPadSound = useCallback((id: number) => {
+    playSound(`select_${id + 1}.wav`);
+  }, [playSound]);
 
   const startGame = useCallback(() => {
     const length = difficulty === "facil" ? 3 : difficulty === "media" ? 4 : 5;
@@ -1039,6 +1085,7 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
 
     timerRef.current = window.setInterval(() => {
       setActivePad(sequence[index]);
+      playPadSound(sequence[index]);
       window.setTimeout(() => setActivePad(null), 320);
 
       index += 1;
@@ -1055,10 +1102,12 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
         timerRef.current = null;
       }
     };
-  }, [sequence]);
+  }, [playPadSound, sequence]);
 
   const handlePad = (id: number) => {
     if (showing) return;
+
+    playPadSound(id);
 
     const next = [...userSequence, id];
     setUserSequence(next);
@@ -1068,12 +1117,14 @@ const SimonGame = ({ game, difficulty }: { game: GameDefinition; difficulty: Dif
 
     const idx = next.length - 1;
     if (next[idx] !== sequence[idx]) {
+      playSound("wobble.wav");
       setFeedback("❌ Secuencia incorrecta. Reinicia.");
       setSuggestion(save({ score: 0, attempts: tries, startedAt, won: false, accuracy: 0 }));
       return;
     }
 
     if (next.length === sequence.length) {
+      playSound("coin_4.wav");
       setFeedback("✅ Perfecto. Secuencia completa.");
       fireConfetti({ y: 0.52, count: 190 });
       setSuggestion(save({ score: sequence.length, attempts: tries, startedAt, won: true }));
@@ -1178,6 +1229,7 @@ export const RutinasGame = ({
   difficulty: Difficulty;
 }) => {
   const save = useGameSaver(game, difficulty);
+  const playSound = useSoundEffects();
 
   const [feedback, setFeedback] = useState("");
   const [suggestion, setSuggestion] = useState("");
@@ -1225,7 +1277,6 @@ export const RutinasGame = ({
     return null;
   });
   // Mejor: efecto (cliente)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useMemo(() => {
     newRound();
     // solo cuando cambia la dificultad
@@ -1261,11 +1312,13 @@ export const RutinasGame = ({
     const accuracy = target.length ? Math.round((correctPositions / target.length) * 100) : 0;
 
     if (correctPositions !== target.length) {
+      playSound("wobble.wav");
       setFeedback(`Tienes ${correctPositions}/${target.length} en posición correcta.`);
       setSuggestion(save({ score: correctPositions, attempts: tries, startedAt, won: false, accuracy }));
       return;
     }
 
+    playSound("coin_4.wav");
     setFeedback("✅ Rutina perfecta.");
     fireConfetti({ y: 0.55, count: 200 });
     setSuggestion(save({ score: target.length, attempts: tries, startedAt, won: true, accuracy }));
