@@ -6,12 +6,17 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
 }
 
 button,
-a {
+a,
+[role="button"] {
   min-height: 44px;
+  cursor: pointer;
+}
+
+.high-contrast {
+  color-scheme: dark;
 }
 
 .high-contrast body {
@@ -19,13 +24,35 @@ a {
   color: #fff;
 }
 
-.high-contrast .bg-white {
+.high-contrast .bg-white,
+.high-contrast .bg-slate-50,
+.high-contrast .bg-slate-100,
+.high-contrast .from-white,
+.high-contrast .to-slate-50 {
   background: #111 !important;
 }
 
-.high-contrast .text-slate-700,
-.high-contrast .text-slate-900 {
+.high-contrast [class*="text-slate-"],
+.high-contrast [class*="text-sky-"],
+.high-contrast [class*="text-amber-"] {
   color: #fff !important;
+}
+
+.high-contrast select,
+.high-contrast option {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #64748b !important;
+}
+
+.high-contrast footer,
+.high-contrast header {
+  background: #050505 !important;
+}
+
+.high-contrast a:hover,
+.high-contrast button:hover {
+  background: #1e293b !important;
 }
 
 :focus-visible {

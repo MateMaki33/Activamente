@@ -24,19 +24,6 @@ export default function AjustesPage() {
 
         <Toggle label="Alto contraste" checked={settings.highContrast} onChange={(checked) => updateSettings({ highContrast: checked })} />
         <Toggle label="Sonidos" checked={settings.sounds} onChange={(checked) => updateSettings({ sounds: checked })} />
-        <Toggle label="Animaciones" checked={settings.animations} onChange={(checked) => updateSettings({ animations: checked })} />
-
-        <label className="block">
-          <span className="font-semibold">Mano dominante</span>
-          <select
-            value={settings.dominantHand}
-            onChange={(event) => updateSettings({ dominantHand: event.target.value as typeof settings.dominantHand })}
-            className="mt-2 w-full rounded-lg border px-3 py-3"
-          >
-            <option value="derecha">Derecha</option>
-            <option value="izquierda">Izquierda</option>
-          </select>
-        </label>
       </div>
     </div>
   );
