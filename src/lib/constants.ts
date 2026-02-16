@@ -6,10 +6,10 @@ export const APP_DESCRIPTION =
 export const APP_STATE_VERSION = 1;
 
 export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/tu_usuario",
-  tiktok: "https://tiktok.com/@tu_usuario",
+  instagram: "https://instagram.com/nutruxiq",
+  tiktok: "https://tiktok.com/@nutruxiq",
   linkedin: "https://linkedin.com/in/tu_usuario",
-  blog: "https://diginurs3.example.com",
+  blog: "https://nutruxiq.com",
 };
 
 export const NAV_ITEMS = [

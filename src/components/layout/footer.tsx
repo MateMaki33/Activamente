@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { SOCIAL_LINKS } from "@/lib/constants";
+import Link from "next/link";
 
 export const Footer = () => (
   <footer className="mt-12 border-t border-slate-200 bg-slate-50">
@@ -18,7 +18,7 @@ export const Footer = () => (
           <li><a href={SOCIAL_LINKS.instagram} className="underline">Instagram</a></li>
           <li><a href={SOCIAL_LINKS.tiktok} className="underline">TikTok</a></li>
           <li><a href={SOCIAL_LINKS.linkedin} className="underline">LinkedIn</a></li>
-          <li><a href={SOCIAL_LINKS.blog} className="underline">Blog: diginurs3</a></li>
+          <li><a href={SOCIAL_LINKS.blog} className="underline">Blog: NutruxIQ</a></li>
         </ul>
       </div>
       <div className="md:text-right">
