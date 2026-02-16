@@ -14,9 +14,7 @@ export type StatsState = {
   totalPlayed: number;
   totalWins: number;
   totalTimeMs: number;
-  daily: Record<string, number>;
   uniqueGames: string[];
-  playedDates: string[];
   hardWins: string[];
   winStreakByGame: Record<string, number>;
   games: Record<string, GameAggregate>;
@@ -27,9 +25,7 @@ export const defaultStatsState: StatsState = {
   totalPlayed: 0,
   totalWins: 0,
   totalTimeMs: 0,
-  daily: {},
   uniqueGames: [],
-  playedDates: [],
   hardWins: [],
   winStreakByGame: {},
   games: {},

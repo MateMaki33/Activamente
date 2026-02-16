@@ -16,7 +16,7 @@ export default function LogrosPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-4xl font-extrabold">Logros</h1>
-      <p className="text-slate-700">Desbloquea metas jugando con constancia y variando desafíos.</p>
+      <p className="text-slate-700">Desbloquea metas por rendimiento, variedad y dominio de dificultad en tu sesión actual.</p>
       <div className="grid gap-4 md:grid-cols-2">
         {ACHIEVEMENTS.map((achievement) => {
           const isUnlocked = unlockedSet.has(achievement.id);
