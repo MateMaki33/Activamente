@@ -8,9 +8,6 @@ export const applyGameResult = (stats: StatsState, result: GameResult): StatsSta
   next.totalWins += result.won ? 1 : 0;
   next.totalTimeMs += result.timeMs;
 
-  const day = result.playedAt.slice(0, 10);
-  next.daily[day] = (next.daily[day] ?? 0) + 1;
-  if (!next.playedDates.includes(day)) next.playedDates.push(day);
   if (!next.uniqueGames.includes(result.gameSlug)) next.uniqueGames.push(result.gameSlug);
 
   if (result.difficulty === "dificil" && result.won && !next.hardWins.includes(result.gameSlug)) {
